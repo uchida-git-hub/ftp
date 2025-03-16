@@ -1,6 +1,14 @@
 package ftp_server;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.FileSystems;
@@ -133,6 +141,8 @@ public class ClientHandler implements Runnable{
             // パスワードが違う場合は通信を切断
             // client側は通信が切断されるとプログラムを終了する
             ctrloutput.println("530 Invalid password.");
+            ctrlSocket.close();
+            
         }
     }
 
@@ -160,12 +170,18 @@ public class ClientHandler implements Runnable{
         }
 
         // cd後のフォルダの存在確認
+        ctrloutput.println("入力されたコマンドは" + command);
+        ctrloutput.flush();
+        if(!(command.startsWith("/"))) {
+    		command = "/" + command;
+    	}
         if(Files.exists(Path.of(currentDir + command))){
             // フォルダが存在する場合はカレントディレクトリを移動
             currentDir = currentDir + command;
+            ctrloutput.println(currentDir);
         }else {
             // cd後のカレントディレクトリが存在しない場合はエラーメッセージを返す
-            ctrloutput.println();
+            ctrloutput.println("このディレクトリは存在しません" + currentDir);
         }
     }
 
@@ -174,7 +190,9 @@ public class ClientHandler implements Runnable{
         File file = new File(currentDir);
         // カレントディレクトリ内のファイルおよびディレクトリ
         String[] dirlist = file.list();
-        ctrloutput.println(Arrays.toString(dirlist));
+        String output = Arrays.toString(dirlist);
+        ctrloutput.println(output);
+        ctrloutput.flush();
     }
 
     // クライアントからファイルを受信

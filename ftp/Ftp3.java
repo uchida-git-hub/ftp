@@ -1,11 +1,17 @@
 package ftp;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import ftp.CtrlListen;
 
 public class Ftp3 {
     // 制御用ソケット
@@ -103,14 +109,8 @@ public class Ftp3 {
             int n;
             byte[] buff = new byte[1024];
             // データ用コネクションを作成
-            Socket dataSocket = dataConnection("LIST ");
-            // データ読み取り用ストリーム
-            BufferedInputStream dataInput = new BufferedInputStream(dataSocket.getInputStream());
-            // ディレクトリの読み取り
-            while((n = dataInput.read(buff)) > 0){
-                System.out.write(buff, 0, n);
-            }
-            dataSocket.close();
+            ctrloutput.println("LIST ");
+            ctrloutput.flush();
         }catch (Exception e){
             e.printStackTrace();
             System.exit(1);
